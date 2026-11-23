@@ -40,6 +40,13 @@ class _CarTablePageState extends State<CarTablePage> {
 
   int? _sortColumnIndex;
   bool _sortAscending = true;
+  String _searchText = '';
+
+  List<Car> get _filteredCars {
+    final query = _searchText.trim().toLowerCase();
+    if (query.isEmpty) return _cars;
+    return _cars.where((car) => car.make.toLowerCase().contains(query)).toList();
+  }
 
   void _sort<T extends Comparable>(
       T Function(Car car) getField, int columnIndex, bool ascending) {
@@ -58,36 +65,50 @@ class _CarTablePageState extends State<CarTablePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Car List')),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SingleChildScrollView(
-          child: DataTable(
-            sortColumnIndex: _sortColumnIndex,
-            sortAscending: _sortAscending,
-            columns: [
-              DataColumn(
-                label: const Text('Car Make'),
-                onSort: (i, asc) => _sort<String>((c) => c.make, i, asc),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              decoration: const InputDecoration(
+                labelText: 'Search by Car Make',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
               ),
-              DataColumn(
-                label: const Text('Model'),
-                onSort: (i, asc) => _sort<String>((c) => c.model, i, asc),
-              ),
-              DataColumn(
-                label: const Text('Price (RM)'),
-                numeric: true,
-                onSort: (i, asc) => _sort<num>((c) => c.price, i, asc),
-              ),
-            ],
-            rows: _cars
-                .map((car) => DataRow(cells: [
-                      DataCell(Text(car.make)),
-                      DataCell(Text(car.model)),
-                      DataCell(Text(car.price.toStringAsFixed(0))),
-                    ]))
-                .toList(),
+              onChanged: (value) => setState(() => _searchText = value),
+            ),
           ),
-        ),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SingleChildScrollView(
+                child: DataTable(
+                  sortColumnIndex: _sortColumnIndex,
+                  sortAscending: _sortAscending,
+                  columns: [
+                    DataColumn(
+                      label: const Text('Car Make'),
+onSort: (columnIndex, ascending) => _sort<String>((car) => car.make, columnIndex, ascending),                    ),
+                    DataColumn(
+                      label: const Text('Model'),
+onSort: (columnIndex, ascending) => _sort<String>((car) => car.model, columnIndex, ascending),                    ),
+                    DataColumn(
+                      label: const Text('Price (RM)'),
+                      numeric: true,
+onSort: (columnIndex, ascending) => _sort<num>((car) => car.price, columnIndex, ascending),
+                )],
+                  rows: _filteredCars
+                      .map((car) => DataRow(cells: [
+                            DataCell(Text(car.make)),
+                            DataCell(Text(car.model)),
+                            DataCell(Text(car.price.toStringAsFixed(0))),
+                          ]))
+                      .toList(),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
