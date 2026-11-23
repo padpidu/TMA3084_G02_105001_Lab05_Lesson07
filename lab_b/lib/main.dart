@@ -45,11 +45,16 @@ class _CarTablePageState extends State<CarTablePage> {
   List<Car> get _filteredCars {
     final query = _searchText.trim().toLowerCase();
     if (query.isEmpty) return _cars;
-    return _cars.where((car) => car.make.toLowerCase().contains(query)).toList();
+    return _cars
+        .where((car) => car.make.toLowerCase().contains(query))
+        .toList();
   }
 
   void _sort<T extends Comparable>(
-      T Function(Car car) getField, int columnIndex, bool ascending) {
+    T Function(Car car) getField,
+    int columnIndex,
+    bool ascending,
+  ) {
     _cars.sort((a, b) {
       final aValue = getField(a);
       final bValue = getField(b);
@@ -88,21 +93,40 @@ class _CarTablePageState extends State<CarTablePage> {
                   columns: [
                     DataColumn(
                       label: const Text('Car Make'),
-onSort: (columnIndex, ascending) => _sort<String>((car) => car.make, columnIndex, ascending),                    ),
+                      onSort: (columnIndex, ascending) => _sort<String>(
+                        (car) => car.make,
+                        columnIndex,
+                        ascending,
+                      ),
+                    ),
                     DataColumn(
                       label: const Text('Model'),
-onSort: (columnIndex, ascending) => _sort<String>((car) => car.model, columnIndex, ascending),                    ),
+                      onSort: (columnIndex, ascending) => _sort<String>(
+                        (car) => car.model,
+                        columnIndex,
+                        ascending,
+                      ),
+                    ),
                     DataColumn(
                       label: const Text('Price (RM)'),
                       numeric: true,
-onSort: (columnIndex, ascending) => _sort<num>((car) => car.price, columnIndex, ascending),
-                )],
+                      onSort: (columnIndex, ascending) => _sort<num>(
+                        (car) => car.price,
+                        columnIndex,
+                        ascending,
+                      ),
+                    ),
+                  ],
                   rows: _filteredCars
-                      .map((car) => DataRow(cells: [
+                      .map(
+                        (car) => DataRow(
+                          cells: [
                             DataCell(Text(car.make)),
                             DataCell(Text(car.model)),
                             DataCell(Text(car.price.toStringAsFixed(0))),
-                          ]))
+                          ],
+                        ),
+                      )
                       .toList(),
                 ),
               ),
